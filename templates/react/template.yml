@@ -1,0 +1,52 @@
+name: "React Component"
+description: "Modern React functional component with TypeScript"
+version: "1.0.0"
+
+conventions : 
+  - component : 
+    - naming : "pascalCase" 
+  - hook : 
+    - naming : "camelCase"
+
+variables:
+  - name: "componentName"
+    type: "string"
+    required: true
+    description: "Component name in PascalCase"
+
+  - name: "componentPath"
+    type: "string"
+    default: "./src/components"
+    description: "Path where component will be generated"
+
+  - name: "includeTests"
+    type: "boolean"
+    default: false
+    description: "Generate test file"
+
+  - name: "includeProps"
+    type: "boolean"
+    default: true
+    description: "Include props interface"
+
+  - name: "styling"
+    type: "string"
+    default: "none"
+    description: "Styling approach"
+
+  - name: "exportType"
+    type: "string"
+    default: "default"
+    description: "Export type"
+
+files:
+  - source: "component.tmpl"
+    destination: "{{ .ComponentPath }}/{{ .ComponentName }}/{{ .ComponentName }}.tsx"
+
+  - source: "index.ts.tmpl"
+    destination: "{{ .ComponentPath }}/{{ .ComponentName }}/index.ts"
+
+  - source: "component.test.tmpl"
+    destination: "{{ .ComponentPath }}/{{ .ComponentName }}/{{ .ComponentName }}.test.tsx"
+    condition: "{{ .IncludeTests }}"
+    
