@@ -14,7 +14,7 @@ func NewConfigLoader() *ConfigLoader {
 	return &ConfigLoader{}
 }
 
-func (l *ConfigLoader) Load() (*Config, error) {
+func (l *ConfigLoader) Load() (*ConfigLoader, error) {
 	teamConfig, err := l.loadTeamConfig()
 	if err != nil {
 		return nil, err
@@ -23,9 +23,12 @@ func (l *ConfigLoader) Load() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Config{
+	config := &Config{
 		Team:     *teamConfig,
 		Template: *templateConfig,
+	}
+	return &ConfigLoader{
+		Config: config,
 	}, nil
 }
 
