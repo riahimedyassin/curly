@@ -1,20 +1,17 @@
 package repository
 
 import (
-	"github.com/riahimedyassin/curly/internal/config"
 	"github.com/riahimedyassin/curly/internal/dto"
 	"github.com/riahimedyassin/curly/internal/interfaces"
 )
 
 type ComponentRepository struct {
-	config *config.Config
-	fs     interfaces.FileSystem
+	fs interfaces.FileSystem
 }
 
-func NewComponentRepository(config *config.Config, fs interfaces.FileSystem) *ComponentRepository {
+func NewComponentRepository(fs interfaces.FileSystem) *ComponentRepository {
 	return &ComponentRepository{
-		config: config,
-		fs:     fs,
+		fs: fs,
 	}
 }
 

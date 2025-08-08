@@ -11,3 +11,7 @@ func NewComponentService(repos interfaces.ComponentRepository) *ComponentService
 		repos: repos,
 	}
 }
+
+func (s *ComponentService) CreateComponent() {
+
+}

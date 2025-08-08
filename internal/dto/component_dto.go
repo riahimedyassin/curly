@@ -18,3 +18,13 @@ type CreateComponent struct {
 	Test    *CreateComponentTest
 	Style   *CreateComponentStyle
 }
+
+type ComponentArgs struct {
+	Name  string  `mapstructure:"name"`
+	Test  *string `mapstructure:"test"`
+	Style *string `mapstructure:"style"`
+	// in case the team config is not enforcing the rule, this will be significant.
+	IncludeTests bool `mapstructure:"includeTests"`
+	// in case the team config is not enforcing the rule, this will be significant.
+	IncludeStyles bool `mapstructure:"includeStyles"`
+}
