@@ -14,6 +14,8 @@ type Enforcement struct {
 	IncludeTests  bool   `yaml:"includeTests"`
 	Typescript    bool   `yaml:"typescript"`
 	ComponentPath string `yaml:"componentPath"`
+	IncludeStyles bool   `yaml:"includeStyles"`
+	IncludeProps  bool   `yaml:"includeProps"`
 }
 
 type StylingRestriction struct {
@@ -47,6 +49,7 @@ type Validations struct {
 	ComponentPath ComponentPathValidation `yaml:"componentPath"`
 }
 
+// ! Main Struct
 type TeamConfig struct {
 	Team         string       `yaml:"team"`
 	Organization string       `yaml:"organization"`

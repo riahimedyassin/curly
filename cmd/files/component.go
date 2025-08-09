@@ -3,7 +3,7 @@ package cmd_files
 import "github.com/spf13/cobra"
 
 func NewComponentCommand() *cobra.Command {
-	return &cobra.Command{
+	command := &cobra.Command{
 		Use:   "component",
 		Short: "Generate components",
 		Long: `Generate component based on the configs and user args.
@@ -18,4 +18,11 @@ func NewComponentCommand() *cobra.Command {
 			return nil
 		},
 	}
+	setupFlags(command)
+	return command
+}
+
+func setupFlags(cmd *cobra.Command) {
+	cmd.Flags().StringP("test", "t", "", "Include test file within your component.")
+	cmd.Flags().StringP("style", "s", "", "Include style file within you component")
 }
