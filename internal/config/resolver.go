@@ -5,61 +5,47 @@ import (
 	"slices"
 )
 
-type ConfigResolver struct {
-	teamConfig     *TeamConfig
-	templateConfig *TemplateConfig
-	templateInfo   *TemplateInfo
-}
-
-func NewConfigResolver(team *TeamConfig, template *TemplateConfig, info *TemplateInfo) *ConfigResolver {
-	return &ConfigResolver{
-		teamConfig:     team,
-		templateConfig: template,
-		templateInfo:   info,
-	}
-}
-
 // Resolve creates the global config by applying team config dominance
-func (r *ConfigResolver) Resolve() (*GlobalConfig, error) {
+func (r *ConfigLoader) Resolve() (*Config, error) {
 	resolvedVars, err := r.resolveVariables()
 	if err != nil {
 		return nil, fmt.Errorf("failed to resolve variables: %w", err)
 	}
 
-	return &GlobalConfig{
-		Team:         r.teamConfig.Team,
-		Organization: r.teamConfig.Organization,
-		Template:     *r.templateInfo,
+	return &Config{
+		Team:         r.primaryConfig.Team.Team,
+		Organization: r.primaryConfig.Team.Organization,
+		Template:     r.primaryConfig.Template.TemplateInfo,
 		Variables:    *resolvedVars,
-		Files:        r.templateConfig.Files,
+		Files:        r.primaryConfig.Template.Files,
 	}, nil
 }
 
-func (r *ConfigResolver) resolveVariables() (*ResolvedVariables, error) {
-	vars := &ResolvedVariables{}
+func (r *ConfigLoader) resolveVariables() (*resolvedVariables, error) {
+	vars := &resolvedVariables{}
 
 	vars.ComponentName = r.resolveStringVariable(
-		r.templateConfig.Variables.ComponentName,
-		r.teamConfig.Defaults.ComponentPath,
-		r.teamConfig.Enforcement.ComponentPath != "",
+		r.primaryConfig.Template.Variables.ComponentName,
+		r.primaryConfig.Team.Defaults.ComponentPath,
+		r.primaryConfig.Team.Enforcement.ComponentPath != "",
 	)
 
 	vars.ComponentPath = r.resolveStringVariable(
-		r.templateConfig.Variables.ComponentPath,
-		r.teamConfig.Defaults.ComponentPath,
-		r.teamConfig.Enforcement.ComponentPath != "",
+		r.primaryConfig.Template.Variables.ComponentPath,
+		r.primaryConfig.Team.Defaults.ComponentPath,
+		r.primaryConfig.Team.Enforcement.ComponentPath != "",
 	)
 
 	vars.IncludeTests = r.resolveBoolVariable(
-		r.templateConfig.Variables.IncludeTests,
-		r.teamConfig.Defaults.IncludeTests,
-		r.teamConfig.Enforcement.IncludeTests,
+		r.primaryConfig.Template.Variables.IncludeTests,
+		r.primaryConfig.Team.Defaults.IncludeTests,
+		r.primaryConfig.Team.Enforcement.IncludeTests,
 	)
 
 	vars.IncludeProps = r.resolveBoolVariable(
-		r.templateConfig.Variables.IncludeProps,
-		r.teamConfig.Defaults.IncludeProps,
-		r.teamConfig.Enforcement.IncludeProps,
+		r.primaryConfig.Template.Variables.IncludeProps,
+		r.primaryConfig.Team.Defaults.IncludeProps,
+		r.primaryConfig.Team.Enforcement.IncludeProps,
 	)
 
 	var err error
@@ -76,13 +62,13 @@ func (r *ConfigResolver) resolveVariables() (*ResolvedVariables, error) {
 	return vars, nil
 }
 
-func (r *ConfigResolver) resolveStringVariable(templateVar Variable[string], teamDefault string, enforced bool) ResolvedVariable[string] {
+func (r *ConfigLoader) resolveStringVariable(templateVar Variable[string], teamDefault string, enforced bool) resolvedVariable[string] {
 	value := templateVar.Default
 	if teamDefault != "" {
 		value = teamDefault
 	}
 
-	return ResolvedVariable[string]{
+	return resolvedVariable[string]{
 		Value:       value,
 		Required:    templateVar.Required,
 		Description: templateVar.Description,
@@ -90,13 +76,13 @@ func (r *ConfigResolver) resolveStringVariable(templateVar Variable[string], tea
 	}
 }
 
-func (r *ConfigResolver) resolveBoolVariable(templateVar Variable[bool], teamDefault bool, enforced bool) ResolvedVariable[bool] {
+func (r *ConfigLoader) resolveBoolVariable(templateVar Variable[bool], teamDefault bool, enforced bool) resolvedVariable[bool] {
 	value := templateVar.Default
 	if enforced {
 		value = teamDefault
 	}
 
-	return ResolvedVariable[bool]{
+	return resolvedVariable[bool]{
 		Value:       value,
 		Required:    templateVar.Required,
 		Description: templateVar.Description,
@@ -104,57 +90,57 @@ func (r *ConfigResolver) resolveBoolVariable(templateVar Variable[bool], teamDef
 	}
 }
 
-func (r *ConfigResolver) resolveStylingVariable() (ResolvedVariable[string], error) {
-	templateVar := r.templateConfig.Variables.Styling
+func (r *ConfigLoader) resolveStylingVariable() (resolvedVariable[string], error) {
+	templateVar := r.primaryConfig.Template.Variables.Styling
 	value := templateVar.Default
 
 	// Apply team default if set
-	if r.teamConfig.Defaults.Styling != "" {
-		value = r.teamConfig.Defaults.Styling
+	if r.primaryConfig.Team.Defaults.Styling != "" {
+		value = r.primaryConfig.Team.Defaults.Styling
 	}
 
 	// Validate against restrictions
 	if err := r.validateStyling(value); err != nil {
-		return ResolvedVariable[string]{}, err
+		return resolvedVariable[string]{}, err
 	}
 
-	return ResolvedVariable[string]{
+	return resolvedVariable[string]{
 		Value:       value,
 		Required:    templateVar.Required,
 		Description: templateVar.Description,
-		Enforced:    r.teamConfig.Defaults.Styling != "",
+		Enforced:    r.primaryConfig.Team.Defaults.Styling != "",
 	}, nil
 }
 
-func (r *ConfigResolver) resolveExportTypeVariable() (ResolvedVariable[string], error) {
-	templateVar := r.templateConfig.Variables.ExportType
+func (r *ConfigLoader) resolveExportTypeVariable() (resolvedVariable[string], error) {
+	templateVar := r.primaryConfig.Template.Variables.ExportType
 	value := templateVar.Default
 
 	// Apply team default if set
-	if r.teamConfig.Defaults.ExportType != "" {
-		value = r.teamConfig.Defaults.ExportType
+	if r.primaryConfig.Team.Defaults.ExportType != "" {
+		value = r.primaryConfig.Team.Defaults.ExportType
 	}
 
 	// Validate against restrictions
 	if err := r.validateExportType(value); err != nil {
-		return ResolvedVariable[string]{}, err
+		return resolvedVariable[string]{}, err
 	}
 
-	return ResolvedVariable[string]{
+	return resolvedVariable[string]{
 		Value:       value,
 		Required:    templateVar.Required,
 		Description: templateVar.Description,
-		Enforced:    r.teamConfig.Defaults.ExportType != "",
+		Enforced:    r.primaryConfig.Team.Defaults.ExportType != "",
 	}, nil
 }
 
 // Validation methods
-func (r *ConfigResolver) validateStyling(value string) error {
-	restrictions := r.teamConfig.Restrictions.Styling
+func (r *ConfigLoader) validateStyling(value string) error {
+	restrictions := r.primaryConfig.Team.Restrictions.Styling
 
 	// Check forbidden list
 	if slices.Contains(restrictions.Forbidden, value) {
-		return fmt.Errorf("styling '%s' is forbidden by team config", value)
+		return fmt.Errorf("styling '%s' is forbidden by team primaryConfig", value)
 	}
 
 	// Check allowed list (if specified)
@@ -165,12 +151,12 @@ func (r *ConfigResolver) validateStyling(value string) error {
 	return nil
 }
 
-func (r *ConfigResolver) validateExportType(value string) error {
-	restrictions := r.teamConfig.Restrictions.ExportType
+func (r *ConfigLoader) validateExportType(value string) error {
+	restrictions := r.primaryConfig.Team.Restrictions.ExportType
 
 	// Check forbidden list
 	if slices.Contains(restrictions.Forbidden, value) {
-		return fmt.Errorf("export type '%s' is forbidden by team config", value)
+		return fmt.Errorf("export type '%s' is forbidden by team primaryConfig", value)
 	}
 
 	// Check allowed list (if specified)

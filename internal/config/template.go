@@ -33,6 +33,7 @@ type Variables struct {
 type Files = []File
 
 type TemplateConfig struct {
+	TemplateInfo
 	Variables Variables `yaml:"variables"`
 	Files     Files     `yaml:"files"`
 }

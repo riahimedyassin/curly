@@ -13,12 +13,15 @@ func NewRootCMD() *cobra.Command {
 		Short: "Curly - V0.0.1",
 		Long:  "Curly - Ultimate React toolkit.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			configLoader := config.NewConfigLoader()
-			config, err := configLoader.Load()
+			configLoader, err := config.NewConfigLoader().Load()
 			if err != nil {
 				return err
 			}
-			fmt.Printf("%v", config.Config)
+			config, err := configLoader.Resolve()
+			if err != nil {
+				return err
+			}
+			fmt.Printf("%v", config)
 			return nil
 		},
 		Aliases: []string{

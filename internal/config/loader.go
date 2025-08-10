@@ -5,7 +5,7 @@ import (
 )
 
 type ConfigLoader struct {
-	Config *Config
+	primaryConfig *primaryConfig
 }
 
 func NewConfigLoader() *ConfigLoader {
@@ -21,18 +21,13 @@ func (l *ConfigLoader) Load() (*ConfigLoader, error) {
 	if err != nil {
 		return nil, err
 	}
-	config := &Config{
+	config := &primaryConfig{
 		Team:     *teamConfig,
 		Template: *templateConfig,
 	}
 	return &ConfigLoader{
-		Config: config,
+		primaryConfig: config,
 	}, nil
-}
-
-// todo : Implement config resolver
-func (l *ConfigLoader) Resolve() {
-
 }
 
 func (l *ConfigLoader) loadTeamConfig() (*TeamConfig, error) {
