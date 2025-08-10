@@ -7,8 +7,8 @@ import (
 
 // todo : Get the user args.
 // Get the config.
-// Validate the user args structure.
-// Validate the user args against the global config.
+// Validate the user args structure. -> Moved to validator package concern
+// Validate the user args against the global config. -> Moved to validator package concern
 // Get templates and parse them.
 // -> Pass everything to the repos.
 type ComponentService struct {
@@ -35,4 +35,11 @@ func (s *ComponentService) Execute() error {
 		return err
 	}
 	return nil
+}
+
+func (s *ComponentService) getComponentTemplate() {
+
+}
+
+func (s *ComponentService) getComponentPath() {
 }

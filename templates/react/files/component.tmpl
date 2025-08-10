@@ -1,0 +1,19 @@
+import React from 'react'
+
+
+{{ if .IncludeProps }}
+interface {{ .ComponentName }}Props {
+  
+}
+{{end}}
+
+
+export {{ .ExportType }} function {{ .ComponentName }} (
+    {{ if .IncludeProps }} { props  } : \{ {{.ComponentName}}Props \}  {{end}}
+  ) {
+  return (
+    <div>
+      
+    </div>
+  )
+}
