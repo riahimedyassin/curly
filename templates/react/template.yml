@@ -40,15 +40,12 @@ variables:
     description: "Export type"
 
 files:
-  - source: "Component.tsx.tmpl"
+  component:
     destination: "{{ .ComponentPath }}/{{ .ComponentName }}/{{ .ComponentName }}.tsx"
-    name: "component"
-
-  - source: "index.ts.tmpl"
-    destination: "{{ .ComponentPath }}/{{ .ComponentName }}/index.ts"
-    name: "index"
-
-  - source: "Component.test.tsx.tmpl"
+    source: "Component.tsx.tmpl"
+  test:
     destination: "{{ .ComponentPath }}/{{ .ComponentName }}/{{ .ComponentName }}.test.tsx"
-    condition: "{{ .IncludeTests }}"
-    name: "test"
+    source: "Component.test.tsx.tmpl"
+  index:
+    destination: "{{ .ComponentPath }}/{{ .ComponentName }}/index.ts"
+    source: "index.ts.tmpl"

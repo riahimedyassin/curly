@@ -10,7 +10,6 @@ type File struct {
 	Source      string `yaml:"source"`
 	Destination string `yaml:"destination"`
 	Condition   string `yaml:"condition"`
-	Name        string `yaml:"name"`
 }
 
 type Variable[T any] struct {
@@ -30,7 +29,11 @@ type Variables struct {
 	ExportType    Variable[string] `yaml:"exportType"`
 }
 
-type Files = []File
+type Files struct {
+	Component File `yaml:"component"`
+	Test      File `yaml:"test"`
+	Index     File `yaml:"index"`
+}
 
 type TemplateConfig struct {
 	TemplateInfo
